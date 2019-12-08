@@ -1,5 +1,4 @@
-﻿import { IDatabase, IMain, ColumnSet } from "pg-promise";
-import { IMCommune } from "../intf/IMCommune";
+﻿import { IMCommune } from "../intf/IMCommune";
 import { IMAdresse } from "../intf/IMAdresse";
 import { Btq } from "../../Btq";
 import { TypeVoie } from "../../TypeVoie";
@@ -17,7 +16,6 @@ export class AdresseRepository {
     private knex: Knex;
 
     // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
 
     async getByXXX(noVoie: number, btqOrNull: IMBtq, typeVoieOrNull: IMTypeDeVoie,
         codeVoie: string, nomVoie: string, cp: IMCodePostal, refCadastre: IMReferenceCadastrale): Promise<IMAdresse> {
@@ -95,10 +93,6 @@ export class AdresseRepository {
                 return Promise.resolve<IMAdresse>(adresseEnBase);
             }
             else {
-
-                // console.log("<<CommuneRepository.createIfNotExists, there is no commune with nom = " + nom + " code = " + code);
-                // let alls: Array<IMCommune> = await this.all();
-                // console.log("\t CREATION, alls = " + JSON.stringify(alls));
 
                 let adresseCreeEnBase: Array<number> = await this.knex("addresse")
                     .insert({

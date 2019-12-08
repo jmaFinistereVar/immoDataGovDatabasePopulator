@@ -246,7 +246,7 @@ let _lireLigneEtPopulerDB = async (aLine: string) => {
         console.log(_nbLignesLuesDansLeFichier);
     var tokens = aLine.split('|');
     if ((-1 == _colCommune) || (1 === _nbLignesLuesDansLeFichier)) {
-            _calculerLesIndicesColonne(tokens);
+        _calculerLesIndicesColonne(tokens);
     }
     else {
         let codeCommune: number = Number(tokens[_colCodeCommune]);
@@ -363,7 +363,7 @@ let _lireLigneEtPopulerDB = async (aLine: string) => {
 }
 
 
-let _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquement: boolean) => {
+const _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquement: boolean) => {
 
     _nbLignesLuesDansLeFichier = 0;
 
@@ -375,10 +375,14 @@ let _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquement:
             }
             else {
                 _nbLignesLuesDepuisLeDebut++;
-                if (0 === _nbLignesLuesDepuisLeDebut % 1000) {
-                    console.log("Avancement = " + 100*_nbLignesLuesDepuisLeDebut/_nbLignesTotal + "%");
+               
+                if  (_nbLignesLuesDepuisLeDebut < 100000) {
+                    if (0 === _nbLignesLuesDepuisLeDebut % 5000) {
+                        console.log("Avancement en calcul = " + 100 * _nbLignesLuesDepuisLeDebut / _nbLignesTotal + "%");
+                    }
+                    await _lireLigneEtPopulerDB(l);
                 }
-                await _lireLigneEtPopulerDB(l);
+               
             }
             reader.resume();
         }
@@ -433,6 +437,9 @@ async function _launchReadFile(file: string, isFirstFile: boolean, isLastFile: b
 }
 
 async function readFileAll() {
+
+    console.log("20191208a");
+
     try {
         _nbLignesTotal = 0;
         for (let i = 0; i < inFiles.length; i++) {
@@ -451,3 +458,4 @@ async function readFileAll() {
 }
 
 readFileAll();
+

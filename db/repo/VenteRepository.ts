@@ -1,5 +1,4 @@
-﻿import { IDatabase, IMain, ColumnSet } from "pg-promise";
-import { IMCommune } from "../intf/IMCommune";
+﻿import { IMCommune } from "../intf/IMCommune";
 import { IMAdresse } from "../intf/IMAdresse";
 import { Btq } from "../../Btq";
 import { TypeVoie } from "../../TypeVoie";
@@ -26,14 +25,7 @@ export class VenteRepository {
     // you will have to replace 'IDatabase<any>' with 'any':
     private knex: Knex;
 
-    // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
-
-
-
-
-
-    async getByXXX(dateMutation: Date, natureMutationintf: IMNatureMutation, valeurFonciere: number,
+    async get(dateMutation: Date, natureMutationintf: IMNatureMutation, valeurFonciere: number,
         nbLots: number, nbPieces: number, natureCultureSpecialeOrNullIntf: IMNatureCultureSpeciale,
         natureCultureOrNullIntf: IMNatureCulture, surfaceTerrain: number, surfaceBati: number,
         volNbOrNull: number, adresse: IMAdresse, typeLocal: IMTypeLocal, surfaceCarrezLots: number,
@@ -138,7 +130,7 @@ export class VenteRepository {
         lot4OrNull: IMLot, lot5OrNull: IMLot): Promise<IMVente> {
         try {
 
-            let c: IMVente = await this.getByXXX(dateMutation, natureMutationintf, valeurFonciere,
+            let c: IMVente = await this.get(dateMutation, natureMutationintf, valeurFonciere,
                 nbLots, nbPieces, natureCultureSpecialeOrNullIntf,
                 natureCultureOrNullIntf, surfaceTerrain, surfaceReeleBati,
                 volNbOrNull, adresse, typeLocal, surfaceCarrezLots, lot1OrNull, lot2OrNull, lot3OrNull, lot4OrNull, lot5OrNull);

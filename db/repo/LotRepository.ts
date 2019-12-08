@@ -1,5 +1,4 @@
-﻿import { IDatabase, IMain, ColumnSet } from "pg-promise";
-import { IMCommune } from "../intf/IMCommune";
+﻿import { IMCommune } from "../intf/IMCommune";
 import { IMLot } from "../intf/IMLot";
 import * as Knex from 'knex';
 
@@ -11,8 +10,7 @@ export class LotRepository {
     // you will have to replace 'IDatabase<any>' with 'any':
     private knex: Knex;
 
-    // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
+
 
    
 

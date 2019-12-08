@@ -207,6 +207,19 @@ CREATE TABLE vente (
 );
 
 
+CREATE INDEX addresse_idx ON addresse ("nb", "code", "voie", 
+									   "idCodePostal", "idCadastre",
+									  "idBtq", "idTypeVoie");
+
+
+CREATE INDEX vente_idx ON vente ("dateVente", "idNatureMutation", "valeurFonciere",
+								"nbLots", "nbPieces", "idNatureCultureSpeciale",
+								"idNatureCulture", "surfaceTerrain",
+								"surfaceBati", "noVolume", "idAddresse",
+								"idTypeLocal", "surfaceTotaleCarrezLots",
+								"idLot1", "idLot2", "idLot3",
+								"idLot4", "idLot5")
+
 
 
 

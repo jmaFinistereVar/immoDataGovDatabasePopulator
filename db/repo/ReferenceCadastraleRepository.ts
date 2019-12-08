@@ -1,5 +1,4 @@
-﻿import { IDatabase, IMain, ColumnSet } from "pg-promise";
-import { IMCommune } from "../intf/IMCommune";
+﻿import { IMCommune } from "../intf/IMCommune";
 import { IMAdresse } from "../intf/IMAdresse";
 import { Btq } from "../../Btq";
 import { TypeVoie } from "../../TypeVoie";
@@ -21,8 +20,7 @@ export class ReferenceCadastraleRepository {
     // you will have to replace 'IDatabase<any>' with 'any':
     private knex: Knex;
 
-    // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
+
 
 
 

@@ -1,5 +1,4 @@
-﻿import { IDatabase, IMain, ColumnSet } from "pg-promise";
-import { IMCommune } from "../intf/IMCommune";
+﻿import { IMCommune } from "../intf/IMCommune";
 import * as Knex from 'knex';
 
 
@@ -15,8 +14,6 @@ export class CommuneRepository {
 
    // private pgp: IMain;
 
-    // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
 
    
     async getByNomAndCode(nom: string): Promise<IMCommune> {

@@ -1,5 +1,4 @@
-﻿import { IMain, IDatabase, ColumnSet } from 'pg-promise';
-
+﻿
 
 
 
@@ -16,8 +15,6 @@ export class CodePostalRepository {
     // you will have to replace 'IDatabase<any>' with 'any':
     private knex: Knex;
 
-    // ColumnSet objects static namespace:
-    private static cs: ColumnSet;
 
 
 

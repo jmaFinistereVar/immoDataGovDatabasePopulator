@@ -1,7 +1,5 @@
 ﻿
 
-import { IMain, IDatabase } from 'pg-promise';
-import * as pgPromise from 'pg-promise';
 
 import { CommuneRepository } from '../repo/CommuneRepository';
 import { DepartementRepository } from '../repo/DepartementRepository';
