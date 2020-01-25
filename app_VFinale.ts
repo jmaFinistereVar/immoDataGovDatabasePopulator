@@ -66,12 +66,13 @@ let _stringToEnum = function <T>(arg: string, v: T[]): T {
 }
 
 
-let inFiles: Array<string> = ["C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2014.txt",
-    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2015.txt",
-    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2016.txt",
+let inFiles: Array<string> = [
+   /* "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2014.txt",
+    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2015.txt",*/
+    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2016.txt" /*,
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2017.txt",
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2018.txt",
-    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2019.txt"];
+"C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2019.txt"*/];
 
 let _findColumnIndex = function (tokens: Array<string>, colName): number {
     let i = 0;
@@ -237,7 +238,7 @@ const _calculerLesIndicesColonne = (tokens: Array<string>) => {
 }
 
 
-let _lireLigneEtPopulerDB = async (aLine: string) => {
+let _lireLigneEtPopulerDB = async (aLine: string, outputTxtFile: string = null) => {
     _nbLignesLuesDansLeFichier++;
     // console.log(_nbLinesRead); 
 
@@ -251,10 +252,14 @@ let _lireLigneEtPopulerDB = async (aLine: string) => {
     }
     else {
         let communeString_AEFFACER: string = (tokens[_colCommune]).replace("'", "''");
-        if ( ("MONTIGNY-LES-METZ" === communeString_AEFFACER)
-        /* || ("ANTIBES" === communeString_AEFFACER) || ("VILLENEUVE-LOUBET" === communeString_AEFFACER) */) {
+        if (("BREST" === communeString_AEFFACER)
+            || ("PUGET-VILLE" === communeString_AEFFACER)) {
             let codeCommune: number = Number(tokens[_colCodeCommune]);
             let codePostalNumber: number = Number(tokens[_coldCodePostal]);
+
+            if (null !== outputTxtFile) {
+                fs.writeFileSync(outputTxtFile, aLine + "\n", {flag : 'a'})
+            }
 
             try {
                 let codeTypeLocal: CodeTypeLocal = numberToCodeTypeLocal(Number(tokens[_colCodeTypeLocal]),
@@ -368,7 +373,9 @@ let _lireLigneEtPopulerDB = async (aLine: string) => {
 }
 
 
-const _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquement: boolean) => {
+const _readerClose = async (reader: LineByLineReader,
+    bCompterLesLignesUniquement: boolean,
+    outputTxtFile: string = null) => {
 
     _nbLignesLuesDansLeFichier = 0;
 
@@ -380,12 +387,14 @@ const _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquemen
             }
             else {
                 _nbLignesLuesDepuisLeDebut++;
-
+                if ((null !== outputTxtFile) && (1 === _nbLignesLuesDepuisLeDebut)) {
+                    fs.writeFileSync(outputTxtFile, l + "\n", {flag: 'w'})
+                }
                 /*if (_nbLignesLuesDepuisLeDebut < 100000)*/ {
                     if (0 === _nbLignesLuesDepuisLeDebut % 5000) {
                         console.log("Avancement en calcul = " + 100 * _nbLignesLuesDepuisLeDebut / _nbLignesTotal + "%");
                     }
-                    await _lireLigneEtPopulerDB(l);
+                    await _lireLigneEtPopulerDB(l, outputTxtFile);
                 }
 
             }
@@ -415,13 +424,15 @@ const _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquemen
 
 
 
-async function _readFile(file: string, isFirstFile: boolean, isLastFile: boolean, bCompterLesLignesUniquement): Promise<void> {
+async function _readFile(file: string, isFirstFile: boolean, isLastFile: boolean,
+    bCompterLesLignesUniquement,
+    outputTxtFile: string = null): Promise<void> {
     console.log("<<_readFile file = " + file);
 
     let lineByLineReader = new LineByLineReader(file);
 
     try {
-        await _readerClose(lineByLineReader, bCompterLesLignesUniquement);
+        await _readerClose(lineByLineReader, bCompterLesLignesUniquement, outputTxtFile);
     }
 
     catch (err) {
@@ -431,9 +442,11 @@ async function _readFile(file: string, isFirstFile: boolean, isLastFile: boolean
 
 
 
-async function _launchReadFile(file: string, isFirstFile: boolean, isLastFile: boolean, bCompterLesLignesUniquement: boolean) {
+async function _launchReadFile(file: string, isFirstFile: boolean, isLastFile: boolean,
+    bCompterLesLignesUniquement: boolean,
+    outputTxtFile: string = null) {
     try {
-        await _readFile(file, isFirstFile, isLastFile, bCompterLesLignesUniquement);
+        await _readFile(file, isFirstFile, isLastFile, bCompterLesLignesUniquement, outputTxtFile);
     }
 
     catch (err) {
@@ -445,6 +458,8 @@ async function readFileAll() {
 
     console.log("20191208a");
 
+    const txtFile = "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/extrait.txt";
+
     try {
         _nbLignesTotal = 0;
         for (let i = 0; i < inFiles.length; i++) {
@@ -453,7 +468,7 @@ async function readFileAll() {
         console.log("Nombre total de lignes = " + _nbLignesTotal);
         _nbLignesLuesDepuisLeDebut = 0;
         for (let i = 0; i < inFiles.length; i++) {
-            await _launchReadFile(inFiles[i], 0 === i, i === inFiles.length - 1, false);
+            await _launchReadFile(inFiles[i], 0 === i, i === inFiles.length - 1, false, txtFile);
         }
     }
 
