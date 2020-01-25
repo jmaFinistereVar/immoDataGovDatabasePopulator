@@ -70,7 +70,8 @@ let inFiles: Array<string> = ["C:/Users/admin/Documents/GitHub/immoDataGov/data-
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2015.txt",
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2016.txt",
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2017.txt",
-    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2018.txt"];
+    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2018.txt",
+    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2019.txt"];
 
 let _findColumnIndex = function (tokens: Array<string>, colName): number {
     let i = 0;
@@ -249,114 +250,118 @@ let _lireLigneEtPopulerDB = async (aLine: string) => {
         _calculerLesIndicesColonne(tokens);
     }
     else {
-        let codeCommune: number = Number(tokens[_colCodeCommune]);
-        let codePostalNumber: number = Number(tokens[_coldCodePostal]);
+        let communeString_AEFFACER: string = (tokens[_colCommune]).replace("'", "''");
+        if ( ("MONTIGNY-LES-METZ" === communeString_AEFFACER)
+        /* || ("ANTIBES" === communeString_AEFFACER) || ("VILLENEUVE-LOUBET" === communeString_AEFFACER) */) {
+            let codeCommune: number = Number(tokens[_colCodeCommune]);
+            let codePostalNumber: number = Number(tokens[_coldCodePostal]);
 
-        try {
-            let codeTypeLocal: CodeTypeLocal = numberToCodeTypeLocal(Number(tokens[_colCodeTypeLocal]),
-                tokens[_colTypeLocal]);
-            let typeLocal: IMTypeLocal = await repoTypeLocal.createifNotExists(codeTypeLocal);
+            try {
+                let codeTypeLocal: CodeTypeLocal = numberToCodeTypeLocal(Number(tokens[_colCodeTypeLocal]),
+                    tokens[_colTypeLocal]);
+                let typeLocal: IMTypeLocal = await repoTypeLocal.createifNotExists(codeTypeLocal);
 
-            let bTQ: Btq = _stringToEnum<Btq>(tokens[_colBTQ], Object.keys(Btq).map(k => Btq[k])); // (tokens[_colBTQ]);
-            let bTqInf: IMBtq = null;
-            if (null != bTQ) {
-                bTqInf = await repoBtq.createifNotExists(bTQ);
+                let bTQ: Btq = _stringToEnum<Btq>(tokens[_colBTQ], Object.keys(Btq).map(k => Btq[k])); // (tokens[_colBTQ]);
+                let bTqInf: IMBtq = null;
+                if (null != bTQ) {
+                    bTqInf = await repoBtq.createifNotExists(bTQ);
+                }
+
+                let natuceCultureSpecial_enum: NatureCultureSpeciales = _stringToEnum<NatureCultureSpeciales>(tokens[_colNatureCultureSpeciale], Object.keys(NatureCultureSpeciales).map(k => NatureCultureSpeciales[k])); // (tokens[_colNatureCultureSpeciale]);
+                let natureCultureSpeciale: IMNatureCultureSpeciale = null;
+                if (null != natuceCultureSpecial_enum)
+                    natureCultureSpeciale = await repoNatureCultureSpeciale.createifNotExists(natuceCultureSpecial_enum);
+
+                let section_enum: Section = _stringToEnum<Section>(tokens[_colSection], Object.keys(Section).map(k => Section[k])); // (tokens[_colSection]);
+                let section: IMSection = await repoSection.createifNotExists(section_enum);
+
+                let natureMutation_enum: NatureMutation = _stringToEnum<NatureMutation>(tokens[_colNatureMutation], Object.keys(NatureMutation).map(k => NatureMutation[k]));//(tokens[_colNatureMutation]);
+                let natureMutation: IMNatureMutation = await repoNatureMutation.createifNotExists(natureMutation_enum);
+
+                let natureCulture_enum: NatureCulture = _stringToEnum<NatureCulture>(tokens[_colNatureCulture], Object.keys(NatureCulture).map(k => NatureCulture[k])); // (tokens[_colNatureCulture]);
+                let natureCulture: IMNatureCulture = null;
+
+                if (null != natureCulture_enum)
+                    natureCulture = await repoNatureCulture.createifNotExists(natureCulture_enum);
+
+                let typeDeVoie_enum: TypeVoie = _stringToEnum<TypeVoie>(tokens[_colTypeDeVoie], Object.keys(TypeVoie).map(k => TypeVoie[k])); //  (tokens[_colTypeDeVoie]);
+                let typeDeVoie: IMTypeDeVoie = null;
+                if (null != typeDeVoie_enum) {
+                    typeDeVoie = await repoTypeDeVoie.createifNotExists(typeDeVoie_enum);
+                }
+
+                let communeString: string = (tokens[_colCommune]).replace("'", "''");
+
+                let commune: IMCommune = null;
+                if ("" !== communeString.trim()) {
+                    commune = await repoCommunes.createIfNotExists(communeString);
+                }
+
+                let codeDepartement_enum: DepartmentCode = _stringToEnum<DepartmentCode>(tokens[_colCodeDepartement], Object.keys(DepartmentCode).map(k => DepartmentCode[k])); //  (tokens[_colTypeDeVoie]);
+                let departement: IMDepartement = await repoDepartements.createifNotExists(codeDepartement_enum);
+
+                if (null == departement)
+                    throw new Error("Impossible to find departement " + departement);
+                let codePostal: IMCodePostal = await repoCodePostals.createifNotExists(codePostalNumber, departement, commune);
+
+                let numeroVoie: number = Number(tokens[_colNumeroVoie].replace(",", "."));
+                let voie: string = (tokens[_colVoie]);
+                let codeVoie: string = (tokens[_colCodeVoie]);
+                let codeDepartement: string = (tokens[_colCodeDepartement]);
+
+                let prefixSectionOuNull: string = (tokens[_colPrefixeSection]);
+                let numeroPlan: number = Number(tokens[_colNumeroPlan].replace(",", "."));
+
+
+                let refCadastrale: IMReferenceCadastrale = await repoReferenceCadastrale.createIfNotExists(departement,
+                    codeCommune, prefixSectionOuNull,
+                    section, numeroPlan);
+
+                let adresse: IMAdresse = await repoAdresse.createIfNotExists(numeroVoie, bTqInf, typeDeVoie,
+                    codeVoie, voie, codePostal, refCadastrale);
+
+                let temp: Array<string> = tokens[_colDateMutation].split("/");
+                //console.log("temp = " + temp);
+                let dateMutation = new Date();
+                dateMutation.setFullYear(Number(temp[2].trim()));
+                dateMutation.setMonth(Number(temp[1].trim()) - 1);
+                dateMutation.setDate(Number(temp[0].trim()));
+
+                let valeurFonciere: number = Number(tokens[_colValeurFonciere].replace(",", "."));
+                let nbDeLots: number = Number(tokens[_colNbdeLots]);
+                let nbPieces: number = Number(tokens[_colNbPieces]);
+                let surfaceTerrain: number = Number(tokens[_colSurfaceTerrain]);
+                let volNbOrNull: number = null;
+                if (0 != tokens[_colNumeroVolume].trim().length) {
+                    volNbOrNull = Number(tokens[_colNumeroVolume].replace(",", "."));
+                }
+
+                let surfaceReeleBati: number = Number(tokens[_colSurfaceReeleBati].replace(",", "."));
+
+                let lot1: IMLot = await _creerLot(_colSurfaceCarrezLot1, _codeTantiemeLot1, tokens);
+                let lot2: IMLot = await _creerLot(_colSurfaceCarrezLot2, _codeTantiemeLot2, tokens);
+                let lot3: IMLot = await _creerLot(_colSurfaceCarrezLot3, _codeTantiemeLot3, tokens);
+                let lot4: IMLot = await _creerLot(_colSurfaceCarrezLot4, _codeTantiemeLot4, tokens);
+                let lot5: IMLot = await _creerLot(_colSurfaceCarrezLot5, _codeTantiemeLot5, tokens);
+
+                let surfaceTotaleCarrezLots: number = 0;
+                surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot1 ? lot1.surfaceCarrez : 0);
+                surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot2 ? lot2.surfaceCarrez : 0);
+                surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot3 ? lot3.surfaceCarrez : 0);
+                surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot4 ? lot4.surfaceCarrez : 0);
+                surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot5 ? lot5.surfaceCarrez : 0);
+
+                let vente: IMVente = await repoVente.createIfNotExists(dateMutation, natureMutation, valeurFonciere,
+                    nbDeLots, nbPieces, natureCultureSpeciale, natureCulture, surfaceTerrain, surfaceReeleBati,
+                    volNbOrNull, adresse, typeLocal, surfaceTotaleCarrezLots, lot1, lot2, lot3, lot4, lot5);
             }
 
-            let natuceCultureSpecial_enum: NatureCultureSpeciales = _stringToEnum<NatureCultureSpeciales>(tokens[_colNatureCultureSpeciale], Object.keys(NatureCultureSpeciales).map(k => NatureCultureSpeciales[k])); // (tokens[_colNatureCultureSpeciale]);
-            let natureCultureSpeciale: IMNatureCultureSpeciale = null;
-            if (null != natuceCultureSpecial_enum)
-                natureCultureSpeciale = await repoNatureCultureSpeciale.createifNotExists(natuceCultureSpecial_enum);
-
-            let section_enum: Section = _stringToEnum<Section>(tokens[_colSection], Object.keys(Section).map(k => Section[k])); // (tokens[_colSection]);
-            let section: IMSection = await repoSection.createifNotExists(section_enum);
-
-            let natureMutation_enum: NatureMutation = _stringToEnum<NatureMutation>(tokens[_colNatureMutation], Object.keys(NatureMutation).map(k => NatureMutation[k]));//(tokens[_colNatureMutation]);
-            let natureMutation: IMNatureMutation = await repoNatureMutation.createifNotExists(natureMutation_enum);
-
-            let natureCulture_enum: NatureCulture = _stringToEnum<NatureCulture>(tokens[_colNatureCulture], Object.keys(NatureCulture).map(k => NatureCulture[k])); // (tokens[_colNatureCulture]);
-            let natureCulture: IMNatureCulture = null;
-
-            if (null != natureCulture_enum)
-                natureCulture = await repoNatureCulture.createifNotExists(natureCulture_enum);
-
-            let typeDeVoie_enum: TypeVoie = _stringToEnum<TypeVoie>(tokens[_colTypeDeVoie], Object.keys(TypeVoie).map(k => TypeVoie[k])); //  (tokens[_colTypeDeVoie]);
-            let typeDeVoie: IMTypeDeVoie = null;
-            if (null != typeDeVoie_enum) {
-                typeDeVoie = await repoTypeDeVoie.createifNotExists(typeDeVoie_enum);
+            catch (err) {
+                console.log("Error received : err = " + JSON.stringify(err) + ", " + err);
+                console.log("Error at line: " + aLine);
+                throw new Error(err);
+                //reader.close();
             }
-
-            let communeString: string = (tokens[_colCommune]).replace("'", "''");
-
-            let commune: IMCommune = null;
-            if ("" !== communeString.trim()) {
-                commune = await repoCommunes.createIfNotExists(communeString);
-            }
-
-            let codeDepartement_enum: DepartmentCode = _stringToEnum<DepartmentCode>(tokens[_colCodeDepartement], Object.keys(DepartmentCode).map(k => DepartmentCode[k])); //  (tokens[_colTypeDeVoie]);
-            let departement: IMDepartement = await repoDepartements.createifNotExists(codeDepartement_enum);
-
-            if (null == departement)
-                throw new Error("Impossible to find departement " + departement);
-            let codePostal: IMCodePostal = await repoCodePostals.createifNotExists(codePostalNumber, departement, commune);
-
-            let numeroVoie: number = Number(tokens[_colNumeroVoie].replace(",", "."));
-            let voie: string = (tokens[_colVoie]);
-            let codeVoie: string = (tokens[_colCodeVoie]);
-            let codeDepartement: string = (tokens[_colCodeDepartement]);
-
-            let prefixSectionOuNull: string = (tokens[_colPrefixeSection]);
-            let numeroPlan: number = Number(tokens[_colNumeroPlan].replace(",", "."));
-
-
-            let refCadastrale: IMReferenceCadastrale = await repoReferenceCadastrale.createIfNotExists(departement,
-                codeCommune, prefixSectionOuNull,
-                section, numeroPlan);
-
-            let adresse: IMAdresse = await repoAdresse.createIfNotExists(numeroVoie, bTqInf, typeDeVoie,
-                codeVoie, voie, codePostal, refCadastrale);
-
-            let temp: Array<string> = tokens[_colDateMutation].split("/");
-            //console.log("temp = " + temp);
-            let dateMutation = new Date();
-            dateMutation.setFullYear(Number(temp[2].trim()));
-            dateMutation.setMonth(Number(temp[1].trim()) - 1);
-            dateMutation.setDate(Number(temp[0].trim()));
-
-            let valeurFonciere: number = Number(tokens[_colValeurFonciere].replace(",", "."));
-            let nbDeLots: number = Number(tokens[_colNbdeLots]);
-            let nbPieces: number = Number(tokens[_colNbPieces]);
-            let surfaceTerrain: number = Number(tokens[_colSurfaceTerrain]);
-            let volNbOrNull: number = null;
-            if (0 != tokens[_colNumeroVolume].trim().length) {
-                volNbOrNull = Number(tokens[_colNumeroVolume].replace(",", "."));
-            }
-
-            let surfaceReeleBati: number = Number(tokens[_colSurfaceReeleBati].replace(",", "."));
-
-            let lot1: IMLot = await _creerLot(_colSurfaceCarrezLot1, _codeTantiemeLot1, tokens);
-            let lot2: IMLot = await _creerLot(_colSurfaceCarrezLot2, _codeTantiemeLot2, tokens);
-            let lot3: IMLot = await _creerLot(_colSurfaceCarrezLot3, _codeTantiemeLot3, tokens);
-            let lot4: IMLot = await _creerLot(_colSurfaceCarrezLot4, _codeTantiemeLot4, tokens);
-            let lot5: IMLot = await _creerLot(_colSurfaceCarrezLot5, _codeTantiemeLot5, tokens);
-
-            let surfaceTotaleCarrezLots: number = 0;
-            surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot1 ? lot1.surfaceCarrez : 0);
-            surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot2 ? lot2.surfaceCarrez : 0);
-            surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot3 ? lot3.surfaceCarrez : 0);
-            surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot4 ? lot4.surfaceCarrez : 0);
-            surfaceTotaleCarrezLots = surfaceTotaleCarrezLots + (null != lot5 ? lot5.surfaceCarrez : 0);
-
-            let vente: IMVente = await repoVente.createIfNotExists(dateMutation, natureMutation, valeurFonciere,
-                nbDeLots, nbPieces, natureCultureSpeciale, natureCulture, surfaceTerrain, surfaceReeleBati,
-                volNbOrNull, adresse, typeLocal, surfaceTotaleCarrezLots, lot1, lot2, lot3, lot4, lot5);
-        }
-
-        catch (err) {
-            console.log("Error received : err = " + JSON.stringify(err) + ", " + err);
-            console.log("Error at line: " + aLine);
-            throw new Error(err);
-            //reader.close();
         }
 
     }
@@ -375,14 +380,14 @@ const _readerClose = async (reader: LineByLineReader, bCompterLesLignesUniquemen
             }
             else {
                 _nbLignesLuesDepuisLeDebut++;
-               
-                if  (_nbLignesLuesDepuisLeDebut < 100000) {
+
+                /*if (_nbLignesLuesDepuisLeDebut < 100000)*/ {
                     if (0 === _nbLignesLuesDepuisLeDebut % 5000) {
                         console.log("Avancement en calcul = " + 100 * _nbLignesLuesDepuisLeDebut / _nbLignesTotal + "%");
                     }
                     await _lireLigneEtPopulerDB(l);
                 }
-               
+
             }
             reader.resume();
         }
