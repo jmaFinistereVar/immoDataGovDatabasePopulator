@@ -69,7 +69,7 @@ let _stringToEnum = function <T>(arg: string, v: T[]): T {
 let inFiles: Array<string> = [
    /* "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2014.txt",
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2015.txt",*/
-    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2016.txt" /*,
+    "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2016.txt"/* ,
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2017.txt",
     "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2018.txt",
 "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/valeursfoncieres-2019.txt"*/];
@@ -252,8 +252,8 @@ let _lireLigneEtPopulerDB = async (aLine: string, outputTxtFile: string = null) 
     }
     else {
         let communeString_AEFFACER: string = (tokens[_colCommune]).replace("'", "''");
-        if (("BREST" === communeString_AEFFACER)
-            || ("PUGET-VILLE" === communeString_AEFFACER)) {
+        if ((communeString_AEFFACER.startsWith('PARIS'))
+            || ("CANNES" === communeString_AEFFACER)) {
             let codeCommune: number = Number(tokens[_colCodeCommune]);
             let codePostalNumber: number = Number(tokens[_coldCodePostal]);
 
@@ -458,7 +458,7 @@ async function readFileAll() {
 
     console.log("20191208a");
 
-    const txtFile = "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/extrait.txt";
+    const txtFile = null; // "C:/Users/admin/Documents/GitHub/immoDataGov/data-gouv/extrait.txt";
 
     try {
         _nbLignesTotal = 0;
